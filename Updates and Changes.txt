@@ -1,9 +1,0 @@
-Make changes to the personal-database project:
-get a list of movies and tvseries from all tables using join in a single output
-create an enum for genre and accept an array of multiple values. Do this for both TV Series and movies 
-Example: genre = [‘Action’, ‘Drama’]
-For users table, take email-id as input, validate using regex if it  is a correct email, if not return error. Then fetch everything using email ids and not using username
-
-Read about:
-# MST branching strategy
-# dev, test, production strategy in github
