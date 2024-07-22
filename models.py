@@ -26,3 +26,11 @@ class TV_Series(Base):
     genre = Column(String(50))                       # Specify length for VARCHAR
     language = Column(String(50))                    # Specify length for VARCHAR
     personal_rating = Column(Float)
+
+class Trips(Base):
+    __tablename__ = 'trips'
+
+    username = Column(String(50), primary_key=True)
+    location = Column(String(200))
+    date = Column(String(100))
+    personal_rating = Column(Float)

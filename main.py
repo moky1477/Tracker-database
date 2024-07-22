@@ -28,6 +28,12 @@ class TVBase(BaseModel):
     language: str
     personal_rating: float
 
+class SongsBase(BaseModel):
+    username: str
+    location: str
+    date: str
+    personal_rating: str
+
 # Connect to the SQL database
 def get_db():
     db = SessionLocal()
