@@ -28,7 +28,7 @@ class TVBase(BaseModel):
     language: str
     personal_rating: float
 
-class SongsBase(BaseModel):
+class TripsBase(BaseModel):
     username: str
     location: str
     date: str
