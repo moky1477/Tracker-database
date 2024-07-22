@@ -67,7 +67,7 @@ async def create_user(user: UserBase, db: Session = Depends(get_db)):
 # Get the detail of users through email
 @app.get('/users/{email}', status_code=status.HTTP_200_OK)
 async def read_users(email: str, db: Session = Depends(get_db)):
-    if not check_email_validation(user.email):
+    if not check_email_validation(email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
     user = db.query(models.Users).filter(models.Users.email==email).first()
     if user is None:
