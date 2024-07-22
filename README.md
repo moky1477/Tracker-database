@@ -1,1 +1,1 @@
-### Developed a tool that interacts with my personal database, implemented with FastAPI in the backend, to store information about Movies and TV Shows. This tool uses SQLAlchemy for seamless database integration and management.
+### Developing a tool that interacts with a Relational Database, implemented with FastAPI in the backend, to store information about Movies, TV Shows and trips using end-points. This tool uses SQLAlchemy for seamless database integration and management.
