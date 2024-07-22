@@ -4,12 +4,14 @@ from database import Base
 class Users(Base):
     __tablename__ = 'users'
 
+    email = Column(String(100), unique=True)
     username = Column(String(50), primary_key=True)  # Specify length for VARCHAR
     full_name = Column(String(100))                  # Specify length for VARCHAR
 
 class Movies(Base):
     __tablename__ = 'movies'
 
+    email = Column(String(100), unique=True)
     username = Column(String(50))  # Specify length for VARCHAR
     title = Column(String(100), primary_key=True)         # Specify length for VARCHAR
     date_watched = Column(String(12))
@@ -20,6 +22,7 @@ class Movies(Base):
 class TV_Series(Base):
     __tablename__ = 'tv_series'
 
+    email = Column(String(100), unique=True)
     username = Column(String(50))  # Specify length for VARCHAR
     title = Column(String(100), primary_key=True)         # Specify length for VARCHAR
     date_watched = Column(String(12))
@@ -30,6 +33,7 @@ class TV_Series(Base):
 class Trips(Base):
     __tablename__ = 'trips'
 
+    email = Column(String(100), unique=True)
     username = Column(String(50), primary_key=True)
     location = Column(String(200))
     date = Column(String(100))
