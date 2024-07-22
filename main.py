@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 import models
 from database import engine, SessionLocal
 from datetime import datetime
@@ -37,7 +38,7 @@ class TripsBase(BaseModel):
     username: str
     location: str
     date: str
-    personal_rating: str
+    personal_rating: float
 
 # Connect to the SQL database
 def get_db():
@@ -63,8 +64,8 @@ async def create_user(user: UserBase, db: Session = Depends(get_db)):
     db.commit()
     return {'Message': 'User has been successfully created'}
 
-# Get the detail of users through username
-@app.get('/users/{user_id}', status_code=status.HTTP_200_OK)
+# Get the detail of users through email
+@app.get('/users/{email}', status_code=status.HTTP_200_OK)
 async def read_users(email: str, db: Session = Depends(get_db)):
     if not check_email_validation(user.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
@@ -115,8 +116,8 @@ async def add_tvshow(show: TVBase, db: Session = Depends(get_db)):
     db.refresh(db_show)
     return {'Message': 'Your TV Series has been successfully added to your database'}
 
-# View TV Shows with unique usernames
-@app.get('/tv_shows/{username}', status_code=status.HTTP_200_OK)
+# View TV Shows with emails
+@app.get('/tv_shows/{email}', status_code=status.HTTP_200_OK)
 async def get_tvshow(email: str, db:Session = Depends(get_db)):
     if not check_email_validation(email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
@@ -126,3 +127,114 @@ async def get_tvshow(email: str, db:Session = Depends(get_db)):
     return show
 
 # Add a new trip to the database
+@app.post('/trips/add_trips', status_code=status.HTTP_201_CREATED)
+async def add_trip(trip: TripsBase, db: Session = Depends(get_db)):
+    if not check_email_validation(trip.email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
+    db_trip = models.Trips(**trip.dict())
+    db.add(db_trip)
+    db.commit()
+    db.refresh(db_trip)
+    return {'Message': 'Your trip has been successfully added'}
+
+# View Trips with emails
+@app.get('/trips/{email}', status_code=status.HTTP_200_OK)
+async def get_trips(email: str, db: Session = Depends(get_db)):
+    if not check_email_validation(email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
+    trip = db.query(models.Trips).filter(models.Trips.email == email).all()
+    if trip is None:
+        return HTTPException(status_code=404, detail=f'No Trips corresponding to {email} found')
+    return trip
+
+# Extract all user data based on the email input
+@app.get('/user_data/{email}', status_code=status.HTTP_200_OK)
+async def get_user_data(email: str, db: Session = Depends(get_db)):
+    if not check_email_validation(email):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
+    
+    # Fetch movies, TV series, and trips for the given email
+    movies = db.query(models.Movies).filter(models.Movies.email == email).all()
+    tv_series = db.query(models.TV_Series).filter(models.TV_Series.email == email).all()
+    trips = db.query(models.Trips).filter(models.Trips.email == email).all()
+
+    # Check if any of the queries return None (although `.all()` should return an empty list if no results are found)
+    if not movies and not tv_series and not trips:
+        raise HTTPException(status_code=404, detail=f'No data found for email: {email}')
+    
+    # Return a combined response
+    return {
+        'movies': movies,
+        'tv_series': tv_series,
+        'trips': trips
+    }
+
+# Extract all user data based on the email input
+# @app.get('/user_data/{email}', status_code=status.HTTP_200_OK)
+# async def get_user_data(email: str, db: Session = Depends(get_db)):
+#     if not check_email_validation(email):
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
+    
+#     # SQL Query to fetch all Movies, TV Series, and Trips
+#     query = text("""
+#         SELECT
+#             'movie' AS type,
+#             m.title AS title, m.date_watched AS date_watched, m.genre AS genre, m.language AS language, m.personal_rating AS personal_rating,
+#             NULL AS location, NULL AS trip_date
+#         FROM movies m
+#         WHERE m.email = :email
+        
+#         UNION ALL
+        
+#         SELECT
+#             'tv_series' AS type,
+#             t.title AS title, t.date_watched AS date_watched, t.genre AS genre, t.language AS language, t.personal_rating AS personal_rating,
+#             NULL AS location, NULL AS trip_date
+#         FROM tv_series t
+#         WHERE t.email = :email
+        
+#         UNION ALL
+        
+#         SELECT
+#             'trip' AS type,
+#             NULL AS title, NULL AS date_watched, NULL AS genre, NULL AS language, NULL AS personal_rating,
+#             t.location AS location, t.date AS trip_date
+#         FROM trips t
+#         WHERE t.email = :email
+#     """)
+    
+#     result = db.execute(query, {'email': email})
+#     rows = result.fetchall()
+
+#     movies = []
+#     tv_series = []
+#     trips = []
+
+#     for row in rows:
+#         if row['type'] == 'movie':
+#             movies.append({
+#                 'title': row['title'],
+#                 'date_watched': row['date_watched'],
+#                 'genre': row['genre'],
+#                 'language': row['language'],
+#                 'personal_rating': row['personal_rating']
+#             })
+#         elif row['type'] == 'tv_series':
+#             tv_series.append({
+#                 'title': row['title'],
+#                 'date_watched': row['date_watched'],
+#                 'genre': row['genre'],
+#                 'language': row['language'],
+#                 'personal_rating': row['personal_rating']
+#             })
+#         elif row['type'] == 'trip':
+#             trips.append({
+#                 'location': row['location'],
+#                 'date': row['trip_date']
+#             })
+
+#     return {
+#         'movies': movies,
+#         'tv_series': tv_series,
+#         'trips': trips
+#     }
