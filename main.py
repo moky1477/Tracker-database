@@ -6,9 +6,34 @@ import models
 from database import engine, SessionLocal
 from datetime import datetime
 import re
+from enum import Enum
 
 app = FastAPI()
 models.Base.metadata.create_all(bind = engine)
+
+from enum import Enum
+
+class Genres(str, Enum):
+    action = 'Action'
+    thriller = 'Thriller'
+    drama = 'Drama'
+    comedy = 'Comedy'
+    horror = 'Horror'
+    romance = 'Romance'
+    sci_fi = 'Sci-Fi'
+    fantasy = 'Fantasy'
+    mystery = 'Mystery'
+    adventure = 'Adventure'
+    animation = 'Animation'
+    documentary = 'Documentary'
+    musical = 'Musical'
+    crime = 'Crime'
+    family = 'Family'
+    history = 'History'
+    war = 'War'
+    western = 'Western'
+    sport = 'Sport'
+    biography = 'Biography'
 
 class UserBase(BaseModel):
     email: str
@@ -20,7 +45,6 @@ class MovieBase(BaseModel):
     username: str
     title: str
     date_watched: str  # Keep this as string and ensure the format is correct
-    genre: str
     language: str
     personal_rating: float
 
@@ -29,7 +53,7 @@ class TVBase(BaseModel):
     username: str
     title: str
     date_watched: str
-    genre: str
+    # genre: str
     language: str
     personal_rating: float
 
@@ -67,7 +91,7 @@ async def create_user(user: UserBase, db: Session = Depends(get_db)):
 # Get the detail of users through email
 @app.get('/users/{email}', status_code=status.HTTP_200_OK)
 async def read_users(email: str, db: Session = Depends(get_db)):
-    if not check_email_validation(user.email):
+    if not check_email_validation(email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
     user = db.query(models.Users).filter(models.Users.email==email).first()
     if user is None:
@@ -76,7 +100,7 @@ async def read_users(email: str, db: Session = Depends(get_db)):
 
 # Add a movie to the database
 @app.post('/movies/add_movie', status_code=status.HTTP_201_CREATED)
-async def add_movie(movie: MovieBase, db: Session = Depends(get_db)):
+async def add_movie(genre: Genres, movie: MovieBase, db: Session = Depends(get_db)):
     # # Ensure the date string matches the expected format (e.g., '15-07-2024')
     # try:
     #     datetime.strptime(movie.date_watched, '%d-%m-%Y')
@@ -84,7 +108,18 @@ async def add_movie(movie: MovieBase, db: Session = Depends(get_db)):
     #     return {'Message': 'Incorrect date format. Expected format: DD-MM-YYYY'}
     if not check_email_validation(movie.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
-    db_movie = models.Movies(**movie.dict())
+    # db_movie = models.Movies(**movie.dict())
+
+    db_movie = models.Movies(
+        email=movie.email,
+        username=movie.username,
+        title=movie.title,
+        date_watched=movie.date_watched,
+        genre=genre.value,
+        language=movie.language,
+        personal_rating=movie.personal_rating
+    )
+        
     db.add(db_movie)
     db.commit()
     db.refresh(db_movie)
@@ -102,7 +137,7 @@ async def get_movies(email: str, db:Session = Depends(get_db)):
 
 # Add a tvshow to the database
 @app.post('/tv_shows/add_tvshow', status_code=status.HTTP_201_CREATED)
-async def add_tvshow(show: TVBase, db: Session = Depends(get_db)):
+async def add_tvshow(genre: Genres, show: TVBase, db: Session = Depends(get_db)):
     # # Ensure the date string matches the expected format (e.g., '15-07-2024')
     # try:
     #     datetime.strptime(movie.date_watched, '%d-%m-%Y')
@@ -110,7 +145,18 @@ async def add_tvshow(show: TVBase, db: Session = Depends(get_db)):
     #     return {'Message': 'Incorrect date format. Expected format: DD-MM-YYYY'}
     if not check_email_validation(show.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Please enter a valid email')
-    db_show = models.TV_Series(**show.dict())
+    # db_show = models.TV_Series(**show.dict())
+
+    db_show = models.TV_Series(
+        email=show.email,
+        username=show.username,
+        title=show.title,
+        date_watched=show.date_watched,
+        genre=genre.value,
+        language=show.language,
+        personal_rating=show.personal_rating
+    )
+
     db.add(db_show)
     db.commit()
     db.refresh(db_show)

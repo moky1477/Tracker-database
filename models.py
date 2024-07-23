@@ -14,9 +14,10 @@ class Users(Base):
 class Movies(Base):
     __tablename__ = 'movies'
 
+    id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(100), unique=True)
     username = Column(String(50))  # Specify length for VARCHAR
-    title = Column(String(100), primary_key=True)         # Specify length for VARCHAR
+    title = Column(String(100))         # Specify length for VARCHAR
     date_watched = Column(String(12))
     genre = Column(String(50))                       # Specify length for VARCHAR
     language = Column(String(50))                    # Specify length for VARCHAR
@@ -27,9 +28,10 @@ class Movies(Base):
 class TV_Series(Base):
     __tablename__ = 'tv_series'
 
+    id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(100), unique=True)
     username = Column(String(50))  # Specify length for VARCHAR
-    title = Column(String(100), primary_key=True)         # Specify length for VARCHAR
+    title = Column(String(100))         # Specify length for VARCHAR
     date_watched = Column(String(12))
     genre = Column(String(50))                       # Specify length for VARCHAR
     language = Column(String(50))                    # Specify length for VARCHAR
@@ -40,8 +42,9 @@ class TV_Series(Base):
 class Trips(Base):
     __tablename__ = 'trips'
 
-    email = Column(String(100), unique=True)
-    username = Column(String(50), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email = Column(String(100))
+    username = Column(String(50))
     location = Column(String(200))
     date = Column(String(100))
     personal_rating = Column(Float)
